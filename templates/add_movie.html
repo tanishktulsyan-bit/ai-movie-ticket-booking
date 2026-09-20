@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+{% block title %}Movies{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Movies</h1>
+    <p class="page-sub">Add and manage your movie catalogue</p>
+</div>
+
+<div class="two-col">
+    <!-- ── ADD FORM ──────────────────────────────── -->
+    <div class="card">
+        <div class="card-title">➕ Add New Movie</div>
+        <form method="POST" action="{{ url_for('movies.add_movie') }}">
+            <div class="form-group">
+                <label>Movie Title *</label>
+                <input type="text" name="title" placeholder="e.g. Inception" required>
+            </div>
+            <div class="form-group">
+                <label>Genre *</label>
+                <input type="text" name="genre" placeholder="e.g. Sci-Fi / Thriller" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Language *</label>
+                    <select name="language" required>
+                        <option value="">Select</option>
+                        <option>English</option>
+                        <option>Hindi</option>
+                        <option>Tamil</option>
+                        <option>Telugu</option>
+                        <option>Kannada</option>
+                        <option>Malayalam</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Duration (mins) *</label>
+                    <input type="number" name="duration" placeholder="148" min="1" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Rating (0–10)</label>
+                    <input type="number" name="rating" placeholder="8.5" min="0" max="10" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>Release Date *</label>
+                    <input type="date" name="release_date" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn--primary">Add Movie</button>
+        </form>
+    </div>
+
+    <!-- ── MOVIE LIST ────────────────────────────── -->
+    <div class="card">
+        <div class="card-title">🎞 All Movies ({{ movies | length }})</div>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Title</th><th>Genre</th><th>Lang</th><th>Dur</th><th>⭐</th></tr>
+                </thead>
+                <tbody>
+                {% for m in movies %}
+                    <tr>
+                        <td><strong>{{ m.title }}</strong></td>
+                        <td>{{ m.genre }}</td>
+                        <td>{{ m.language }}</td>
+                        <td>{{ m.duration }}m</td>
+                        <td>{{ m.rating }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="5" class="empty">No movies yet.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

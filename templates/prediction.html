@@ -1,0 +1,147 @@
+{% extends "layout.html" %}
+{% block title %}AI Predictions{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">🤖 AI Crowd Prediction</h1>
+    <p class="page-sub">ML-lite engine predicts expected audience size using historical booking data</p>
+</div>
+
+<!-- ── HOW IT WORKS BANNER ───────────────────── -->
+<div class="algo-banner">
+    <div class="algo-step"><span>①</span> Current Seats Sold</div>
+    <div class="algo-arrow">→</div>
+    <div class="algo-step"><span>②</span> Historical Average (same movie × theatre)</div>
+    <div class="algo-arrow">→</div>
+    <div class="algo-step"><span>③</span> Weighted Blend (60/40)</div>
+    <div class="algo-arrow">→</div>
+    <div class="algo-step algo-step--highlight"><span>④</span> Crowd Prediction + Confidence</div>
+</div>
+
+<div class="two-col">
+    <!-- ── PREDICT FORM ──────────────────────────── -->
+    <div class="card">
+        <div class="card-title">🔮 Run Prediction</div>
+        <form method="POST" action="{{ url_for('predictions.run_prediction') }}">
+            <div class="form-group">
+                <label>Select Show *</label>
+                <select name="show_id" required>
+                    <option value="">Choose a show…</option>
+                    {% for s in shows %}
+                    <option value="{{ s.show_id }}">
+                        {{ s.movie_title }} — {{ s.theatre_name }}
+                        | {{ s.show_date }} {{ s.show_time }}
+                        | {{ s.available_seats }} seats left
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn--ai">⚡ Predict Crowd</button>
+        </form>
+
+        <!-- ── RESULT CARD ──────────────────────── -->
+        {% if latest %}
+        <div class="result-card" id="predResult">
+            <div class="result-header">Prediction Result</div>
+
+            <div class="result-movie">{{ latest.movie_title }}</div>
+            <div class="result-venue">{{ latest.theatre_name }} · {{ latest.show_date }}</div>
+
+            <div class="crowd-meter">
+                <div class="crowd-level crowd-level--{{ latest.crowd_level | lower }}">
+                    {{ latest.crowd_level }}
+                </div>
+                <div class="crowd-pct">{{ latest.fill_percentage }}% fill rate</div>
+            </div>
+
+            <!-- Fill bar -->
+            <div class="fill-bar-wrap">
+                <div class="fill-bar" style="width: {{ latest.fill_percentage }}%;
+                    background: {% if latest.crowd_level == 'Housefull' %}#ef4444
+                                {% elif latest.crowd_level == 'High' %}#f97316
+                                {% elif latest.crowd_level == 'Medium' %}#eab308
+                                {% else %}#22c55e{% endif %};">
+                </div>
+            </div>
+
+            <div class="result-stats">
+                <div class="result-stat">
+                    <div class="rs-val">{{ latest.predicted_crowd }}</div>
+                    <div class="rs-label">Predicted Crowd</div>
+                </div>
+                <div class="result-stat">
+                    <div class="rs-val">{{ latest.total_seats }}</div>
+                    <div class="rs-label">Total Seats</div>
+                </div>
+                <div class="result-stat">
+                    <div class="rs-val">{{ latest.current_sold }}</div>
+                    <div class="rs-label">Currently Sold</div>
+                </div>
+                <div class="result-stat">
+                    <div class="rs-val">{{ latest.historical_avg }}</div>
+                    <div class="rs-label">Hist. Average</div>
+                </div>
+            </div>
+
+            <!-- Confidence gauge -->
+            <div class="confidence-wrap">
+                <div class="confidence-label">Confidence Score</div>
+                <div class="confidence-bar-wrap">
+                    <div class="confidence-bar" style="width:{{ latest.confidence_score }}%"></div>
+                </div>
+                <div class="confidence-val">{{ latest.confidence_score }}%
+                    (based on {{ latest.sample_size }} similar show{{ 's' if latest.sample_size != 1 else '' }})
+                </div>
+            </div>
+
+            <div class="upgrade-note">
+                💡 <strong>Upgrade tip:</strong> Replace weighted average with
+                <code>sklearn.linear_model.LinearRegression</code> using features like
+                day-of-week, show hour, genre, price, and movie rating for higher accuracy.
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- ── PREDICTION HISTORY ────────────────────── -->
+    <div class="card">
+        <div class="card-title">📜 Prediction History</div>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Movie</th>
+                        <th>Theatre</th>
+                        <th>Date</th>
+                        <th>Predicted</th>
+                        <th>Confidence</th>
+                        <th>Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for p in predictions %}
+                    <tr>
+                        <td><strong>{{ p.movie_title }}</strong></td>
+                        <td>{{ p.theatre_name }}</td>
+                        <td>{{ p.show_date }}</td>
+                        <td>{{ p.predicted_crowd }} / {{ p.total_seats }}</td>
+                        <td>{{ p.confidence_score }}%</td>
+                        <td>
+                            <span class="badge
+                                {% if p.crowd_level == 'Housefull' %}badge--red
+                                {% elif p.crowd_level == 'High' %}badge--orange
+                                {% elif p.crowd_level == 'Medium' %}badge--yellow
+                                {% else %}badge--green{% endif %}">
+                                {{ p.crowd_level }}
+                            </span>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="6" class="empty">No predictions yet. Run one!</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

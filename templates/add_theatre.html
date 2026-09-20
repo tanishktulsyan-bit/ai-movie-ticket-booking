@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{% block title %}Theatres{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Theatres</h1>
+    <p class="page-sub">Manage your theatre locations and capacities</p>
+</div>
+
+<div class="two-col">
+    <!-- ── ADD FORM ──────────────────────────────── -->
+    <div class="card">
+        <div class="card-title">➕ Add New Theatre</div>
+        <form method="POST" action="{{ url_for('theatres.add_theatre') }}">
+            <div class="form-group">
+                <label>Theatre Name *</label>
+                <input type="text" name="name" placeholder="e.g. PVR Cinemas" required>
+            </div>
+            <div class="form-group">
+                <label>Location *</label>
+                <input type="text" name="location" placeholder="e.g. Chennai - Express Avenue" required>
+            </div>
+            <div class="form-group">
+                <label>Total Seats *</label>
+                <input type="number" name="total_seats" placeholder="300" min="1" required>
+            </div>
+            <button type="submit" class="btn btn--primary">Add Theatre</button>
+        </form>
+    </div>
+
+    <!-- ── THEATRE LIST ──────────────────────────── -->
+    <div class="card">
+        <div class="card-title">🏛 All Theatres ({{ theatres | length }})</div>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr><th>#</th><th>Name</th><th>Location</th><th>Seats</th></tr>
+                </thead>
+                <tbody>
+                {% for t in theatres %}
+                    <tr>
+                        <td>{{ t.theatre_id }}</td>
+                        <td><strong>{{ t.name }}</strong></td>
+                        <td>{{ t.location }}</td>
+                        <td>{{ t.total_seats }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4" class="empty">No theatres yet.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "layout.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-sub">Live overview of your cinema operations</p>
+</div>
+
+<!-- ── KPI CARDS ──────────────────────────────── -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-icon">🎞</div>
+        <div class="kpi-value">{{ movies | length }}</div>
+        <div class="kpi-label">Total Movies</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon">🏛</div>
+        <div class="kpi-value">{{ theatres | length }}</div>
+        <div class="kpi-label">Theatres</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon">📅</div>
+        <div class="kpi-value">{{ shows | length }}</div>
+        <div class="kpi-label">Active Shows</div>
+    </div>
+    <div class="kpi-card kpi-card--accent">
+        <div class="kpi-icon">🎟</div>
+        <div class="kpi-value">{{ stats.total_bookings or 0 }}</div>
+        <div class="kpi-label">Total Bookings</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-value">₹{{ "%.0f"|format(stats.total_revenue or 0) }}</div>
+        <div class="kpi-label">Revenue</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon">📊</div>
+        <div class="kpi-value">{{ "%.1f"|format(stats.avg_seats or 0) }}</div>
+        <div class="kpi-label">Avg Seats / Booking</div>
+    </div>
+</div>
+
+<!-- ── QUICK ACTIONS ──────────────────────────── -->
+<div class="section-title">Quick Actions</div>
+<div class="action-grid">
+    <a href="{{ url_for('movies.list_movies') }}" class="action-card">
+        <span>🎞</span> Add Movie
+    </a>
+    <a href="{{ url_for('theatres.list_theatres') }}" class="action-card">
+        <span>🏛</span> Add Theatre
+    </a>
+    <a href="{{ url_for('shows.list_shows') }}" class="action-card">
+        <span>📅</span> Create Show
+    </a>
+    <a href="{{ url_for('bookings.list_bookings') }}" class="action-card">
+        <span>🎟</span> Book Tickets
+    </a>
+    <a href="{{ url_for('predictions.list_predictions') }}" class="action-card action-card--ai">
+        <span>🤖</span> Run AI Prediction
+    </a>
+</div>
+
+<!-- ── RECENT SHOWS TABLE ─────────────────────── -->
+<div class="section-title">Recent Shows</div>
+<div class="table-wrap">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Movie</th>
+                <th>Theatre</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Available Seats</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for show in shows[:8] %}
+            <tr>
+                <td><strong>{{ show.movie_title }}</strong></td>
+                <td>{{ show.theatre_name }}</td>
+                <td>{{ show.show_date }}</td>
+                <td>{{ show.show_time }}</td>
+                <td>
+                    <span class="badge {% if show.available_seats == 0 %}badge--red
+                                      {% elif show.available_seats < 50 %}badge--yellow
+                                      {% else %}badge--green{% endif %}">
+                        {{ show.available_seats }}
+                    </span>
+                </td>
+                <td>₹{{ show.ticket_price }}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="6" class="empty">No shows found. Create one!</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

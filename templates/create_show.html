@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+{% block title %}Shows{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Shows</h1>
+    <p class="page-sub">Schedule movies at theatres and manage screenings</p>
+</div>
+
+<div class="two-col">
+    <!-- ── CREATE FORM ───────────────────────────── -->
+    <div class="card">
+        <div class="card-title">➕ Create New Show</div>
+        <form method="POST" action="{{ url_for('shows.create_show') }}">
+            <div class="form-group">
+                <label>Movie *</label>
+                <select name="movie_id" required>
+                    <option value="">Select Movie</option>
+                    {% for m in movies %}
+                        <option value="{{ m.movie_id }}">{{ m.title }} ({{ m.language }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Theatre *</label>
+                <select name="theatre_id" required>
+                    <option value="">Select Theatre</option>
+                    {% for t in theatres %}
+                        <option value="{{ t.theatre_id }}">{{ t.name }} — {{ t.location }} ({{ t.total_seats }} seats)</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Show Date *</label>
+                    <input type="date" name="show_date" required>
+                </div>
+                <div class="form-group">
+                    <label>Show Time *</label>
+                    <input type="time" name="show_time" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Ticket Price (₹) *</label>
+                <input type="number" name="ticket_price" placeholder="250" min="1" step="0.01" required>
+            </div>
+            <button type="submit" class="btn btn--primary">Create Show</button>
+        </form>
+    </div>
+
+    <!-- ── SHOW LIST ─────────────────────────────── -->
+    <div class="card">
+        <div class="card-title">📅 All Shows ({{ shows | length }})</div>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Movie</th>
+                        <th>Theatre</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Price</th>
+                        <th>Seats Left</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for s in shows %}
+                    <tr>
+                        <td><strong>{{ s.movie_title }}</strong></td>
+                        <td>{{ s.theatre_name }}</td>
+                        <td>{{ s.show_date }}</td>
+                        <td>{{ s.show_time }}</td>
+                        <td>₹{{ s.ticket_price }}</td>
+                        <td>
+                            <span class="badge {% if s.available_seats == 0 %}badge--red
+                                              {% elif s.available_seats < 50 %}badge--yellow
+                                              {% else %}badge--green{% endif %}">
+                                {{ s.available_seats }}
+                            </span>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="6" class="empty">No shows yet.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

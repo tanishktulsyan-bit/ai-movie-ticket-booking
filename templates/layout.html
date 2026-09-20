@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CrowdCast AI{% endblock %} — Movie Crowd Predictor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- ── SIDEBAR NAVIGATION ─────────────────────── -->
+<aside class="sidebar">
+    <div class="brand">
+        <span class="brand-icon">🎬</span>
+        <div>
+            <div class="brand-name">CrowdCast</div>
+            <div class="brand-sub">AI Prediction System</div>
+        </div>
+    </div>
+
+    <nav class="nav">
+        <a href="{{ url_for('dashboard') }}"
+           class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+            <span class="nav-icon">⬛</span> Dashboard
+        </a>
+        <div class="nav-section">CONTENT</div>
+        <a href="{{ url_for('movies.list_movies') }}"
+           class="nav-item {% if 'movies' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon">🎞</span> Movies
+        </a>
+        <a href="{{ url_for('theatres.list_theatres') }}"
+           class="nav-item {% if 'theatres' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon">🏛</span> Theatres
+        </a>
+        <div class="nav-section">OPERATIONS</div>
+        <a href="{{ url_for('shows.list_shows') }}"
+           class="nav-item {% if 'shows' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon">📅</span> Shows
+        </a>
+        <a href="{{ url_for('bookings.list_bookings') }}"
+           class="nav-item {% if 'bookings' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon">🎟</span> Bookings
+        </a>
+        <div class="nav-section">AI ENGINE</div>
+        <a href="{{ url_for('predictions.list_predictions') }}"
+           class="nav-item {% if 'predictions' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon">🤖</span> Predictions
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">v1.0 · ML-Lite Engine</div>
+</aside>
+
+<!-- ── MAIN CONTENT ───────────────────────────── -->
+<main class="main">
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-wrap">
+          {% for cat, msg in messages %}
+            <div class="flash flash--{{ cat }}">
+              {{ '✓' if cat == 'success' else '✗' }} {{ msg }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</main>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
